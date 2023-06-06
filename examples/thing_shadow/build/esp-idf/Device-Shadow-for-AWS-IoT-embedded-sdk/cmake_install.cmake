@@ -1,4 +1,4 @@
-# Install script for directory: /Users/Dizr/Documents/iot_aws_shadow_common4/libraries/Device-Shadow-for-AWS-IoT-embedded-sdk
+# Install script for directory: /Users/Dizr/Documents/iot_aws_shadow_common4/aws_iot_/libraries/Device-Shadow-for-AWS-IoT-embedded-sdk
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

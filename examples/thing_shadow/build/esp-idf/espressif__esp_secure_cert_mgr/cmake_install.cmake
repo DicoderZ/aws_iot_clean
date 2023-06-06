@@ -1,4 +1,4 @@
-# Install script for directory: /Users/Dizr/Documents/iot_aws_shadow_common4/examples/thing_shadow/managed_components/espressif__esp_secure_cert_mgr
+# Install script for directory: /Users/Dizr/Documents/iot_aws_shadow_common4/aws_iot_/examples/thing_shadow/managed_components/espressif__esp_secure_cert_mgr
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

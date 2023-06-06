@@ -39,7 +39,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/Users/Dizr/Documents/iot_aws_shadow_common4/examples/thing_shadow/build/bootloader/esp-idf/cmake_install.cmake")
+  include("/Users/Dizr/Documents/iot_aws_shadow_common4/aws_iot_/examples/thing_shadow/build/bootloader/esp-idf/cmake_install.cmake")
 
 endif()
 
@@ -51,5 +51,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/Users/Dizr/Documents/iot_aws_shadow_common4/examples/thing_shadow/build/bootloader/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/Users/Dizr/Documents/iot_aws_shadow_common4/aws_iot_/examples/thing_shadow/build/bootloader/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

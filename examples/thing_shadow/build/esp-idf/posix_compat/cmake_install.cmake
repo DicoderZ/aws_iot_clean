@@ -1,4 +1,4 @@
-# Install script for directory: /Users/Dizr/Documents/iot_aws_shadow_common4/libraries/common/posix_compat
+# Install script for directory: /Users/Dizr/Documents/iot_aws_shadow_common4/aws_iot_/libraries/common/posix_compat
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

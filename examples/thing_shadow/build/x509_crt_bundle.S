@@ -1,4 +1,4 @@
-/* * Data converted from /Users/Dizr/Documents/iot_aws_shadow_common4/examples/thing_shadow/build/esp-idf/mbedtls/x509_crt_bundle
+/* * Data converted from /Users/Dizr/Documents/iot_aws_shadow_common4/aws_iot_/examples/thing_shadow/build/esp-idf/mbedtls/x509_crt_bundle
  */
 .data
 .section .rodata.embedded

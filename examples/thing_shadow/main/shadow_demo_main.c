@@ -74,6 +74,8 @@
     #include "main.h"
     #include "ping_time.h"
     #include <cJSON.h>
+    #include "buzzer.h"
+
     /**
      * @brief Format string representing a Shadow document with a "desired" state.
      *
@@ -584,6 +586,7 @@
 
                     if (publish_payload_prob(test_payload))
                     {
+                        buzzer_play_heartbeat();
                         feed_watchdog = true;
                         Sleep(60);
                         // esp_sleep_enable_timer_wakeup(device_config.publish_interval*1000*1000);

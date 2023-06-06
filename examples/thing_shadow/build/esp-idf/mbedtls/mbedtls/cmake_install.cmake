@@ -39,9 +39,9 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/Users/Dizr/Documents/iot_aws_shadow_common4/examples/thing_shadow/build/esp-idf/mbedtls/mbedtls/include/cmake_install.cmake")
-  include("/Users/Dizr/Documents/iot_aws_shadow_common4/examples/thing_shadow/build/esp-idf/mbedtls/mbedtls/3rdparty/cmake_install.cmake")
-  include("/Users/Dizr/Documents/iot_aws_shadow_common4/examples/thing_shadow/build/esp-idf/mbedtls/mbedtls/library/cmake_install.cmake")
+  include("/Users/Dizr/Documents/iot_aws_shadow_common4/aws_iot_/examples/thing_shadow/build/esp-idf/mbedtls/mbedtls/include/cmake_install.cmake")
+  include("/Users/Dizr/Documents/iot_aws_shadow_common4/aws_iot_/examples/thing_shadow/build/esp-idf/mbedtls/mbedtls/3rdparty/cmake_install.cmake")
+  include("/Users/Dizr/Documents/iot_aws_shadow_common4/aws_iot_/examples/thing_shadow/build/esp-idf/mbedtls/mbedtls/library/cmake_install.cmake")
 
 endif()
 

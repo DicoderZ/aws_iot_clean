@@ -161,8 +161,8 @@ aws iot-data update-thing-shadow \
             "desired": {
             "cfg": {
                 "version":"v1.0.1",
-                "publish_interval": 300,
-                "customer_id": "testing",
+                "publish_interval": 60,
+                "facility": "testing",
                 "led": 1,
                 "dbg_mode": 1,
                 "reset": 0

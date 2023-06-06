@@ -10,6 +10,7 @@ set(COMPONENT_SRCS
 	 "core/wifi_driver/http_server.c"
 	 "core/wifi_driver/wifi_manager.c"
 	 "core/wifi_driver/data_store_nvs.c"
+	 "core/extra/buzzer.c"
 	)
 
 set(COMPONENT_ADD_INCLUDEDIRS

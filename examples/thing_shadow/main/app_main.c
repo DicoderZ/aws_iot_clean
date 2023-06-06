@@ -16,7 +16,7 @@
 #include "esp_netif.h"
 #include "protocol_examples_common.h"
 #include "core_utility.h"
-
+#include "buzzer.h"
 int aws_shadow_main(int argc, char **argv);
 
 #include "esp_log.h"
@@ -62,8 +62,9 @@ static void WatchdogInit()
  */
 void core_start(void)
 {
+    buzzer_init();
+    buzzer_play_progress();
     Sleep(5);
-
     WifiInit(); // WiFi Initialization
 
     read_nvs_config(NULL);
@@ -83,10 +84,8 @@ void core_start(void)
 void app_main()
 {
     //** start the core functionality
-
     core_start();
-
+    buzzer_play_progress();
     //** classsic shadow
-
     aws_shadow_main(0, NULL);
 }

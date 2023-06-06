@@ -1,4 +1,4 @@
-# Install script for directory: /Users/Dizr/Documents/iot_aws_shadow_common4/libraries/backoffAlgorithm
+# Install script for directory: /Users/Dizr/Documents/iot_aws_shadow_common4/aws_iot_/libraries/backoffAlgorithm
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

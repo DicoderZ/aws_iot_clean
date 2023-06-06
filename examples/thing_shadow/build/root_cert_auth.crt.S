@@ -1,4 +1,4 @@
-/* * Data converted from /Users/Dizr/Documents/iot_aws_shadow_common4/examples/thing_shadow/main/certs/root_cert_auth.crt
+/* * Data converted from /Users/Dizr/Documents/iot_aws_shadow_common4/aws_iot_/examples/thing_shadow/main/certs/root_cert_auth.crt
  * (null byte appended)
  */
 .data

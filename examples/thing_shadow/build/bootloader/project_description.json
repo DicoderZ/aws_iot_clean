@@ -1,8 +1,8 @@
 {
     "project_name":       "bootloader",
     "project_path":       "/Users/Dizr/esp/esp-idf/components/bootloader/subproject",
-    "build_dir":          "/Users/Dizr/Documents/iot_aws_shadow_common4/examples/thing_shadow/build/bootloader",
-    "config_file":        "/Users/Dizr/Documents/iot_aws_shadow_common4/examples/thing_shadow/sdkconfig",
+    "build_dir":          "/Users/Dizr/Documents/iot_aws_shadow_common4/aws_iot_/examples/thing_shadow/build/bootloader",
+    "config_file":        "/Users/Dizr/Documents/iot_aws_shadow_common4/aws_iot_/examples/thing_shadow/sdkconfig",
     "config_defaults":    "",
     "app_elf":            "bootloader.elf",
     "app_bin":            "bootloader.bin",
