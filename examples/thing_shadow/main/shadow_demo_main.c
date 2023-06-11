@@ -77,6 +77,8 @@
     #include "buzzer.h"
     #include "uart_handler.h"
     #include <iconv.h>
+    #include "ldo_control.h"
+    #include "esp_wifi.h"
 
     /**
      * @brief Format string representing a Shadow document with a "desired" state.
@@ -122,6 +124,10 @@
     #define SHADOW_DESIRED_JSON_LENGTH (sizeof(SHADOW_DESIRED_JSON) - 3)
 
     #define PAYLOAD_PROB "$aws/things/" CONFIG_MQTT_CLIENT_IDENTIFIER "/shadow/name/payload-prod/update"
+
+    #define MAX_UART_DATA_LENGTH 128
+
+
     /**
      * @brief Format string representing a Shadow document with a "reported" state.
      *
@@ -533,6 +539,13 @@
      * loops to process incoming messages. Those are not the focus of this demo
      * and therefore, are placed in a separate file shadow_demo_helpers.c.
      */
+int get_wifi_rssi()
+{
+    wifi_ap_record_t ap_info;
+    esp_wifi_sta_get_ap_info(&ap_info);
+    int rssi = ap_info.rssi;
+    return rssi;
+}
 
 
 void extractValues(const char* input, char* phValue, char* conductivityValue, size_t bufferSize)
@@ -560,55 +573,60 @@ void extractValues(const char* input, char* phValue, char* conductivityValue, si
     }
 }
 
+void createPayload(char** test_payload) {
+    char phValue[5] = "nan";  // Buffer size should accommodate the expected value length + 1 for null termination
+    char conductivityValue[5] = "nan";
+    char cpu_temp[5] = "nan";
+
+    char uart_data[MAX_UART_DATA_LENGTH]="nan";
+    char tmprawdata[MAX_UART_DATA_LENGTH];
+
+    get_uart_data(uart_data, MAX_UART_DATA_LENGTH);
+    
+    int rssi_value = get_wifi_rssi();
+
+    // rx_task(rawdata);
+    // strcpy(uart_data, "31gpd01&WF#0733#0236#000#0#0000.0#0000.0#00000#00000#000#000#00000#00000#0000.0#0000.0#00000#00000#valuerend"); // Copy data to rxdata
+    
+    strcpy(tmprawdata, uart_data); // Copy data to rxdata
+    extractValues(tmprawdata, phValue, conductivityValue, sizeof(phValue));
+
+    cJSON *root, *reported, *report;
+    root = cJSON_CreateObject();
+    cJSON_AddItemToObject(root, "state",  reported = cJSON_CreateObject());
+    cJSON_AddItemToObject(reported, "reported", report = cJSON_CreateObject());
+    cJSON_AddItemToObject(report, "ts", cJSON_CreateNumber(GetStandardTime()));
+    cJSON_AddItemToObject(report, "device_id", cJSON_CreateString(CONFIG_MQTT_CLIENT_IDENTIFIER));
+    cJSON_AddItemToObject(report, "facility_id", cJSON_CreateString(device_config.facility_id));
+    //cJSON_AddItemToObject(report, "data_packet_nr", cJSON_CreateNumber(5));
+    cJSON_AddItemToObject(report, "ph", cJSON_CreateString(phValue));
+    cJSON_AddItemToObject(report, "conductivity", cJSON_CreateString(conductivityValue));
+    cJSON_AddItemToObject(report, "cpu_temp", cJSON_CreateString(cpu_temp));
+    cJSON_AddItemToObject(report, "rawdat", cJSON_CreateString(uart_data));
+    cJSON_AddItemToObject(report, "rssi", cJSON_CreateNumber(rssi_value));
+    cJSON_AddItemToObject(report, "reset_reasons", cJSON_CreateNumber(esp_reset_reason()));
+
+    /* print everything */
+    *test_payload = cJSON_Print(root);
+
+    /* free all objects under root and root itself */
+    cJSON_Delete(root);
+}
+
     int aws_shadow_main(int argc,
                         char **argv)
     {
-
-        char phValue[5];  // Buffer size should accommodate the expected value length + 1 for null termination
-        char conductivityValue[5];
-
-        char rawdata[128] = "";
-        char tmprawdata[128] = "";
-
-        // rx_task(rawdata);
-        strcpy(rawdata, "31gpd01&WF#0733#0236#000#0#0000.0#0000.0#00000#00000#000#000#00000#00000#0000.0#0000.0#00000#00000#valuerend"); // Copy data to rxdata
-
-        strcpy(tmprawdata, rawdata); // Copy data to rxdata
-
-        extractValues(tmprawdata, phValue, conductivityValue, sizeof(phValue));
-
-
-    
-        cJSON *root, *reported, *report;
-        root = cJSON_CreateObject();
-        cJSON_AddItemToObject(root, "state",  reported = cJSON_CreateObject());
-        cJSON_AddItemToObject(reported, "reported", report = cJSON_CreateObject());
-        cJSON_AddItemToObject(report, "ts", cJSON_CreateNumber(GetStandardTime()));
-        cJSON_AddItemToObject(report, "device_id", cJSON_CreateString(CONFIG_MQTT_CLIENT_IDENTIFIER));
-        //cJSON_AddItemToObject(report, "data_packet_nr", cJSON_CreateNumber(5));
-        cJSON_AddItemToObject(report, "ph", cJSON_CreateString(phValue));
-        cJSON_AddItemToObject(report, "conductivity", cJSON_CreateString(conductivityValue));
-        cJSON_AddItemToObject(report, "cpu_temp", cJSON_CreateNumber(45));
-        cJSON_AddItemToObject(report, "rawdat", cJSON_CreateString(rawdata));
-        cJSON_AddItemToObject(report, "rssi", cJSON_CreateNumber(-50));
-        cJSON_AddItemToObject(report, "reset_reasons", cJSON_CreateNumber(4));
-
-        /* print everything */
-        char* test_payload = cJSON_Print(root);
-        // printf("%s\n", test_payload);
-        //free(out);
-
-        /* free all objects under root and root itself */
-        cJSON_Delete(root);
-
-
-
+        char* test_payload = NULL;
         bool disconnect_occur = false;
 
         init_classic_shadow();
 
         while (1)
         {
+            ldo_on();
+            vTaskDelay(10 / portTICK_PERIOD_MS);
+            createPayload(&test_payload); //* get data and prepare payload
+
             if (wifi_sta && disconnect_occur)
             {
                 buzzer_play_error_tune();
@@ -629,7 +647,9 @@ void extractValues(const char* input, char* phValue, char* conductivityValue, si
                     {
                         buzzer_play_heartbeat();
                         feed_watchdog = true;
+                        ldo_off();
                         Sleep(10);
+                        // Sleep(device_config.publish_interval*1000*1000);
                         // esp_sleep_enable_timer_wakeup(device_config.publish_interval*1000*1000);
                         // esp_deep_sleep_start();
                     }
