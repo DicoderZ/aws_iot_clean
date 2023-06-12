@@ -79,6 +79,8 @@
     #include <iconv.h>
     #include "ldo_control.h"
     #include "esp_wifi.h"
+    #include "sensors.h"
+    #include <ctype.h>
 
     /**
      * @brief Format string representing a Shadow document with a "desired" state.
@@ -126,6 +128,8 @@
     #define PAYLOAD_PROB "$aws/things/" CONFIG_MQTT_CLIENT_IDENTIFIER "/shadow/name/payload-prod/update"
 
     #define MAX_UART_DATA_LENGTH 128
+
+    static const char *TAG = "AWS_HANDLER";
 
 
     /**
@@ -573,6 +577,23 @@ void extractValues(const char* input, char* phValue, char* conductivityValue, si
     }
 }
 
+char* stringRemoveNonAlphaNum(char *str)
+{
+    size_t len = strlen(str);
+    size_t j = 0;
+
+    for (size_t i = 0; i < len; i++)
+    {
+        if (isalnum(str[i]) || str[i] == '#' || str[i] == '/' || str[i] == '\\')
+        {
+            str[j++] = str[i];
+        }
+    }
+    str[j] = '\0';
+    return str;
+}
+
+
 void createPayload(char** test_payload) {
     char phValue[5] = "nan";  // Buffer size should accommodate the expected value length + 1 for null termination
     char conductivityValue[5] = "nan";
@@ -582,14 +603,14 @@ void createPayload(char** test_payload) {
     char tmprawdata[MAX_UART_DATA_LENGTH];
 
     get_uart_data(uart_data, MAX_UART_DATA_LENGTH);
-    
-    int rssi_value = get_wifi_rssi();
 
-    // rx_task(rawdata);
-    // strcpy(uart_data, "31gpd01&WF#0733#0236#000#0#0000.0#0000.0#00000#00000#000#000#00000#00000#0000.0#0000.0#00000#00000#valuerend"); // Copy data to rxdata
-    
+    // Modify the input string by removing non-alphanumeric characters and # and \ and /
+    stringRemoveNonAlphaNum(uart_data);
+    // ESP_LOGI(TAG, "Filtered UART data %s: \n", uart_data);
+
     strcpy(tmprawdata, uart_data); // Copy data to rxdata
     extractValues(tmprawdata, phValue, conductivityValue, sizeof(phValue));
+    ESP_LOGI(TAG, "Got pH value: %s, Conductivity vaue: %s. \n", phValue, conductivityValue);
 
     cJSON *root, *reported, *report;
     root = cJSON_CreateObject();
@@ -601,9 +622,9 @@ void createPayload(char** test_payload) {
     //cJSON_AddItemToObject(report, "data_packet_nr", cJSON_CreateNumber(5));
     cJSON_AddItemToObject(report, "ph", cJSON_CreateString(phValue));
     cJSON_AddItemToObject(report, "conductivity", cJSON_CreateString(conductivityValue));
-    cJSON_AddItemToObject(report, "cpu_temp", cJSON_CreateString(cpu_temp));
+    cJSON_AddItemToObject(report, "cpu_temp", cJSON_CreateString(get_board_temp()));
     cJSON_AddItemToObject(report, "rawdat", cJSON_CreateString(uart_data));
-    cJSON_AddItemToObject(report, "rssi", cJSON_CreateNumber(rssi_value));
+    cJSON_AddItemToObject(report, "rssi", cJSON_CreateNumber(get_wifi_rssi()));
     cJSON_AddItemToObject(report, "reset_reasons", cJSON_CreateNumber(esp_reset_reason()));
 
     /* print everything */
