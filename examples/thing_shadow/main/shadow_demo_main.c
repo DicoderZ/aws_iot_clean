@@ -79,6 +79,7 @@
     #include <iconv.h>
     #include "ldo_control.h"
     #include "esp_wifi.h"
+    #include "sensors.h"
 
     /**
      * @brief Format string representing a Shadow document with a "desired" state.
@@ -126,7 +127,8 @@
     #define PAYLOAD_PROB "$aws/things/" CONFIG_MQTT_CLIENT_IDENTIFIER "/shadow/name/payload-prod/update"
 
     #define MAX_UART_DATA_LENGTH 128
-
+    
+    static const char *TAG = "AWS_SHADOW_MAIN";
 
     /**
      * @brief Format string representing a Shadow document with a "reported" state.
@@ -510,7 +512,7 @@
             }
             else
             {
-                if (tries == 6)
+                if (tries >= 6)
                 {
                     esp_restart();
                 }
@@ -539,17 +541,21 @@
      * loops to process incoming messages. Those are not the focus of this demo
      * and therefore, are placed in a separate file shadow_demo_helpers.c.
      */
+
 int get_wifi_rssi()
 {
     wifi_ap_record_t ap_info;
     esp_wifi_sta_get_ap_info(&ap_info);
     int rssi = ap_info.rssi;
+    ESP_LOGI(TAG, "Got RSSI %d \n", rssi);
+
     return rssi;
 }
 
-
 void extractValues(const char* input, char* phValue, char* conductivityValue, size_t bufferSize)
 {
+    ESP_LOGI(TAG, "Extracting pH-Cond values...\n");
+
     char* token;
     char* context;
 
@@ -571,19 +577,21 @@ void extractValues(const char* input, char* phValue, char* conductivityValue, si
             conductivityValue[bufferSize - 1] = '\0';
         }
     }
+    ESP_LOGI(TAG, "pH value: %d \n, Cond. vaue: %d \n, Done!", phValue, conductivityValue);
+
 }
 
 void createPayload(char** test_payload) {
     char phValue[5] = "nan";  // Buffer size should accommodate the expected value length + 1 for null termination
     char conductivityValue[5] = "nan";
-    char cpu_temp[5] = "nan";
 
     char uart_data[MAX_UART_DATA_LENGTH]="nan";
     char tmprawdata[MAX_UART_DATA_LENGTH];
 
     get_uart_data(uart_data, MAX_UART_DATA_LENGTH);
-    
-    int rssi_value = get_wifi_rssi();
+    ESP_LOGI(TAG, "Received data: %s \nData looks valid. Exiting the loop...", (char*)data);
+
+    // int rssi_value = get_wifi_rssi();
 
     // rx_task(rawdata);
     // strcpy(uart_data, "31gpd01&WF#0733#0236#000#0#0000.0#0000.0#00000#00000#000#000#00000#00000#0000.0#0000.0#00000#00000#valuerend"); // Copy data to rxdata
@@ -601,9 +609,9 @@ void createPayload(char** test_payload) {
     //cJSON_AddItemToObject(report, "data_packet_nr", cJSON_CreateNumber(5));
     cJSON_AddItemToObject(report, "ph", cJSON_CreateString(phValue));
     cJSON_AddItemToObject(report, "conductivity", cJSON_CreateString(conductivityValue));
-    cJSON_AddItemToObject(report, "cpu_temp", cJSON_CreateString(cpu_temp));
+    cJSON_AddItemToObject(report, "cpu_temp", cJSON_CreateString(35)); //get_board_temp()
     cJSON_AddItemToObject(report, "rawdat", cJSON_CreateString(uart_data));
-    cJSON_AddItemToObject(report, "rssi", cJSON_CreateNumber(rssi_value));
+    cJSON_AddItemToObject(report, "rssi", cJSON_CreateNumber(get_wifi_rssi()));
     cJSON_AddItemToObject(report, "reset_reasons", cJSON_CreateNumber(esp_reset_reason()));
 
     /* print everything */
@@ -617,6 +625,7 @@ void createPayload(char** test_payload) {
                         char **argv)
     {
         char* test_payload = NULL;
+        int pub_int = 20;
         bool disconnect_occur = false;
 
         init_classic_shadow();
@@ -646,9 +655,18 @@ void createPayload(char** test_payload) {
                     if (publish_payload_prob(test_payload))
                     {
                         buzzer_play_heartbeat();
+                        ESP_LOGI(TAG, "Feeding WDT");
                         feed_watchdog = true;
                         ldo_off();
+                        // ESP_LOGI(TAG, "Setting wakeup timer for : %d s", (int*)pub_int);
+                        esp_sleep_enable_timer_wakeup(pub_int*1000*1000);
+                        printf("Entering light sleep\n");
                         Sleep(10);
+                        /* Enter sleep mode */
+                        // esp_light_sleep_start();
+                        // pub_int = (atoi(device_config.publish_interval)*1000*1000);
+                        // ESP_LOGI(TAG, "Publish interval: %d", (int*)pub_int);
+                        //Sleep(10);
                         // Sleep(device_config.publish_interval*1000*1000);
                         // esp_sleep_enable_timer_wakeup(device_config.publish_interval*1000*1000);
                         // esp_deep_sleep_start();

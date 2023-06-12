@@ -19,7 +19,7 @@
 #include "ldo_control.h"
 #include "buzzer.h"
 #include "uart_handler.h"
-
+#include "sensors.h"
 
 int aws_shadow_main(int argc, char **argv);
 
@@ -69,17 +69,16 @@ void core_start(void)
     Sleep(5);
     ldo_init();
     ldo_on();
-    // buzzer_play_james_bond();
+    buzzer_play_james_bond();
     // setting watchdog timer for 2 seconds
     WatchdogInit(); // Initializing Watchdog timer
 
     WifiInit(); // WiFi Initialization
 
     read_nvs_config(NULL);
-
     GetStandardTime(); // Get Standard time
     uart_initialize();
-
+    sensors_initialize();
 
 }
 

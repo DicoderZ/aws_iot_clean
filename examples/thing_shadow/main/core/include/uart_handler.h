@@ -12,8 +12,8 @@
 #define UART_RX_FLOW_CTRL_THRESH 122
 #define UART_BUFFER_SIZE (1024 * 2)
 
-void uart_initialize();
-void get_uart_data(char* buffer, size_t buffer_size);
+bool uart_initialize();
+bool get_uart_data(char* buffer, size_t buffer_size);
 
 
 #endif  // UART_HANDLER_H

@@ -118,11 +118,16 @@ static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_
                         }
                 }
 
-                ESP_LOGI(TAG, "Reconnecting...");
-                esp_wifi_connect();
+                ESP_LOGI(TAG, "Reconnecting. Attempt: %d", s_retry_num);        
                 s_retry_num++;
+                if (s_retry_num >= 30)
+                {
+                        ESP_LOGI(TAG, "Wi-Fi connection attempt %d failed. Retrying...", s_retry_num);
+                        esp_restart();
+                }
+                esp_wifi_connect();
 
-                disconnectivity_count++; // when disconnected for longer duration then relogin it is used in
+                disconnectivity_count++; // when disconnected for longer duration then relogin. it is used in
                                          // network task manager to help detect relogin
                 if (disconnectivity_count > 1000) {
                         disconnectivity_count = 30;

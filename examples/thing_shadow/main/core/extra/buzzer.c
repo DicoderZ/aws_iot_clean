@@ -84,7 +84,7 @@ void buzzer_play_james_bond()
 {
     
     // Define the duty cycle values for the James Bond theme
-    uint8_t duty_cycles[] = {128, 200, 128, 0, 128, 200, 128, 0, 128, 128, 128, 0, 128, 64, 0, 192};
+    uint8_t duty_cycles[] = {128, 200, 128, 0, 128, 0, 192};
 
     // Configure the LEDC timer
     ledc_timer_config_t ledc_timer = {

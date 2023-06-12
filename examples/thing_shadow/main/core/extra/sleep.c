@@ -28,7 +28,7 @@ void write_nvs_config() {
         nvs_perform_str("facility_id", device_config.facility_id, STR, WRITE);
         nvs_perform_number("pub_inter", &device_config.publish_interval, U16, WRITE);
         nvs_perform_number("led", &device_config.led, U8, WRITE);
-        nvs_perform_number("dgb_mode", &device_config.dbg_mode, U8, WRITE);
+        nvs_perform_number("dbg_mode", &device_config.dbg_mode, U8, WRITE);
 }
 /**
  * @brief
@@ -40,7 +40,7 @@ void read_nvs_config() {
         nvs_perform_str("facility_id", device_config.facility_id, STR, READ);
         nvs_perform_number("pub_inter", &device_config.publish_interval, U16, READ);
         nvs_perform_number("led", &device_config.led, U8, READ);
-        nvs_perform_number("dgb_mode", &device_config.dbg_mode, U8, READ);
+        nvs_perform_number("dbg_mode", &device_config.dbg_mode, U8, READ);
 
         //** fall back condition
 
